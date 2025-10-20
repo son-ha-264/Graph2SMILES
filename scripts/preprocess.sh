@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DATASET=USPTO_50k
+DATASET=BioChem_USPTO_NPL
 MODEL=g2s_series_rel
 TASK=retrosynthesis
 REPR_START=smiles

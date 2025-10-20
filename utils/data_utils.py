@@ -143,7 +143,7 @@ class S2SDataset(Dataset):
             np.random.shuffle(self.data_indices[i:i+bucket_size])
 
         logging.info(f"Done, time: {time.time() - start: .2f} s")
-        sys.stdout.flush()
+        #sys.stdout.flush()
 
     def batch(self, batch_type: str, batch_size: int):
         start = time.time()
@@ -203,7 +203,8 @@ class S2SDataset(Dataset):
             raise ValueError(f"batch_type {batch_type} not supported!")
 
         logging.info(f"Done, time: {time.time() - start: .2f} s, total batches: {self.__len__()}")
-        sys.stdout.flush()
+        #sys.stdout.flush()
+        #print("Not Because of flush")
 
     def __getitem__(self, index: int) -> S2SBatch:
         batch_start = self.batch_starts[index]
@@ -477,6 +478,7 @@ class G2SDataset(Dataset):
         # source (graph)
         graph_features = []
         a_lengths = []
+        
         for data_index in data_indices:
             start, end = self.a_scopes_indices[data_index]
             a_scope = self.a_scopes[start:end]
@@ -496,9 +498,9 @@ class G2SDataset(Dataset):
             graph_feature = (a_scope, b_scope, a_feature, b_feature, a_graph, b_graph)
             graph_features.append(graph_feature)
             a_lengths.append(a_length)
-
+        
         fnode, fmess, agraph, bgraph, atom_scope, bond_scope = collate_graph_features(graph_features)
-
+        
         # target (seq)
         tgt_token_ids = self.tgt_token_ids[data_indices]
         tgt_lengths = self.tgt_lens[data_indices]
@@ -509,6 +511,7 @@ class G2SDataset(Dataset):
         tgt_lengths = torch.tensor(tgt_lengths, dtype=torch.long)
 
         distances = None
+        
         if self.args.compute_graph_distance:
             distances = collate_graph_distances(self.args, graph_features, a_lengths)
 
@@ -521,7 +524,7 @@ class G2SDataset(Dataset):
         logging.info(f"{distances}")
         exit(0)
         """
-
+        
         g2s_batch = G2SBatch(
             fnode=fnode,
             fmess=fmess,
@@ -561,7 +564,10 @@ def get_graph_features_from_smi(_args):
     if not smi.strip():
         smi = "CC"          # hardcode to ignore
 
-    graph = get_graph_from_smiles(smi).reac_mol
+    try:
+        graph = get_graph_from_smiles(smi).reac_mol
+    except:
+        print(smi)
 
     mol = graph.mol
     assert mol.GetNumAtoms() == len(graph.G_dir)
@@ -705,9 +711,10 @@ def collate_graph_features(graph_features: List[Tuple], directed: bool = True, u
 
 def collate_graph_distances(args, graph_features: List[Tuple], a_lengths: List[int]) -> torch.Tensor:
     max_len = max(a_lengths)
-
     distances = []
     for bid, (graph_feature, a_length) in enumerate(zip(graph_features, a_lengths)):
+        if bid ==106:
+            continue
         _, _, _, bond_features, _, _ = graph_feature
         bond_features = bond_features.copy()
 
@@ -741,7 +748,7 @@ def collate_graph_distances(args, graph_features: List[Tuple], a_lengths: List[i
 
             distance = new_distance
             path_length += 1
-
+        
         # bucket
         distance[(distance > 8) & (distance < 15)] = 8
         distance[distance >= 15] = 9

@@ -14,6 +14,7 @@ from torch.utils.data import DataLoader
 from utils import parsing
 from utils.data_utils import load_vocab, S2SDataset, G2SDataset
 from utils.train_utils import get_lr, grad_norm, NoamLR, param_count, param_norm, set_seed, setup_logger
+from tqdm import tqdm
 
 
 def get_train_parser():
@@ -35,8 +36,10 @@ def main(args):
     vocab_tokens = [k for k, v in sorted(vocab.items(), key=lambda tup: tup[1])]
 
     # initialization ----------------- model
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
     os.makedirs(args.save_dir, exist_ok=True)
-    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    #device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    device = "cuda"
 
     if args.model == "s2s":
         model_class = Seq2Seq
@@ -94,6 +97,7 @@ def main(args):
     o_start = time.time()
 
     logging.info("Start training")
+    #for epoch in tqdm(range(args.epoch)):
     for epoch in range(args.epoch):
         model.zero_grad()
 
@@ -110,21 +114,25 @@ def main(args):
             collate_fn=lambda _batch: _batch[0],
             pin_memory=True
         )
-
-        for batch_idx, batch in enumerate(train_loader):
+        print(train_dataset[0])
+        for batch_idx, batch in tqdm(enumerate(train_loader)):
+            print("Hang here???")
             if total_step > args.max_steps:
                 logging.info("Max steps reached, finish training")
                 exit(0)
-
+            
+            print("Batch to device")
             batch.to(device)
             with torch.autograd.profiler.profile(enabled=args.do_profile,
                                                  record_shapes=args.record_shapes,
                                                  use_cuda=torch.cuda.is_available()) as prof:
 
+                print("Enables autocasting for the forward pass (model + loss)")
                 # Enables autocasting for the forward pass (model + loss)
                 with torch.cuda.amp.autocast(enabled=args.enable_amp):
                     loss, acc = model(batch)
 
+                print("Scales loss.  Calls backward() on scaled loss to create scaled gradients.")
                 # Exits the context manager before backward()
                 # Scales loss.  Calls backward() on scaled loss to create scaled gradients.
                 scaler.scale(loss).backward()
@@ -133,7 +141,8 @@ def main(args):
                 accs.append(acc.item() * 100)
 
                 accum += 1
-
+                
+                print("Accum loss")
                 if accum == args.accumulation_count:
                     # Unscales the gradients of optimizer's assigned params in-place
                     scaler.unscale_(optimizer)

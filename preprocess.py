@@ -143,7 +143,7 @@ def binarize_g2s(src_file: str, tgt_file: str, prefix: str, output_path: str,
     logging.info(f"Binarizing (g2s) src {src_file} and tgt {tgt_file}, saving to {output_file}")
 
     with open(src_file, "r") as f:
-        # lines = f.readlines()[164104:164106]
+        #src_lines = f.readlines()[59590:59599]
         src_lines = f.readlines()
 
     with open(tgt_file, "r") as f:

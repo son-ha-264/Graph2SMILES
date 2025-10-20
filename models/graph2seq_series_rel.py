@@ -54,6 +54,7 @@ class Graph2SeqSeriesRel(nn.Module):
             attention_dropout=args.attn_dropout,
             embeddings=self.decoder_embeddings,
             max_relative_positions=args.max_relative_positions,
+            relative_positions_buckets=16,
             aan_useffn=False,
             full_context_alignment=False,
             alignment_layer=-3,

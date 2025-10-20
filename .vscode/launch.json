@@ -1,0 +1,19 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: preprocess.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "/home/sonh/MAINCE_project/Graph2SMILES/preprocess.py",
+            "console": "integratedTerminal",
+            "args": ["--model", "g2s_series_rel", "--data_name", "BioChem_USPTO_NPL", "--task", "retrosynthesis", "--representation_start", "smiles", "--representation_end", "smiles", "--train_src", "./data/BioChem_USPTO_NPL/src-train.txt",
+            "--train_tgt", "./data/BioChem_USPTO_NPL/tgt-train.txt", "--val_src", "./data/BioChem_USPTO_NPL/src-val.txt", "--val_tgt", "./data/BioChem_USPTO_NPL/tgt-val.txt", "--test_src", "./data/BioChem_USPTO_NPL/src-test.txt", 
+            "--test_tgt", "./data/BioChem_USPTO_NPL/tgt-test.txt", "--log_file", "BioChem_USPTO_NPL_g2s_series_rel_smiles_smiles.preprocess.log", "--preprocess_output_path", "./preprocessed/BioChem_USPTO_NPL_g2s_series_rel_smiles_smiles/",
+            "--seed", "42", "--max_src_len", "1024", "--max_tgt_len", "1024", "--num_workers", "8"]
+        },
+    ]
+}
