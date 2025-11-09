@@ -290,7 +290,8 @@ class G2SBatch:
         logging.info(f"fnode: {self.fnode.shape}, "
                      f"fmess: {self.fmess.shape}, "
                      f"tgt_token_ids: {self.tgt_token_ids.shape}, "
-                     f"tgt_lengths: {self.tgt_lengths}")
+                     f"tgt_lengths: {self.tgt_lengths}, "
+                     f"distances: {self.distances.shape}")
 
 
 class G2SDataset(Dataset):
@@ -536,7 +537,7 @@ class G2SDataset(Dataset):
             tgt_lengths=tgt_lengths,
             distances=distances
         )
-        # g2s_batch.log_tensor_shape()
+        #g2s_batch.log_tensor_shape()
 
         return g2s_batch
 
@@ -713,8 +714,6 @@ def collate_graph_distances(args, graph_features: List[Tuple], a_lengths: List[i
     max_len = max(a_lengths)
     distances = []
     for bid, (graph_feature, a_length) in enumerate(zip(graph_features, a_lengths)):
-        if bid ==106:
-            continue
         _, _, _, bond_features, _, _ = graph_feature
         bond_features = bond_features.copy()
 
@@ -743,7 +742,8 @@ def collate_graph_distances(args, graph_features: List[Tuple], a_lengths: List[i
                 non_zeros = np.count_nonzero(new_distance)
                 stop_counter = 0
 
-            if args.task == "reaction_prediction" and stop_counter == 3:
+            #if args.task == "reaction_prediction" and stop_counter == 3:
+            if stop_counter == 3:
                 break
 
             distance = new_distance
@@ -752,17 +752,17 @@ def collate_graph_distances(args, graph_features: List[Tuple], a_lengths: List[i
         # bucket
         distance[(distance > 8) & (distance < 15)] = 8
         distance[distance >= 15] = 9
-        if args.task == "reaction_prediction":
-            distance[distance == 0] = 10
+        #if args.task == "reaction_prediction":
+        distance[distance == 0] = 10
 
         # reset diagonal
         np.fill_diagonal(distance, 0)
 
         # padding
-        if args.task == "reaction_prediction":
-            padded_distance = np.ones((max_len, max_len), dtype=np.int32) * 11
-        else:
-            padded_distance = np.ones((max_len, max_len), dtype=np.int32) * 10
+        #if args.task == "reaction_prediction":
+        padded_distance = np.ones((max_len, max_len), dtype=np.int32) * 11
+        #else:
+        #    padded_distance = np.ones((max_len, max_len), dtype=np.int32) * 10
         padded_distance[:a_length, :a_length] = distance
 
         distances.append(padded_distance)

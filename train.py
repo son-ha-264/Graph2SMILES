@@ -116,23 +116,19 @@ def main(args):
         )
         print(train_dataset[0])
         for batch_idx, batch in tqdm(enumerate(train_loader)):
-            print("Hang here???")
             if total_step > args.max_steps:
                 logging.info("Max steps reached, finish training")
                 exit(0)
             
-            print("Batch to device")
             batch.to(device)
             with torch.autograd.profiler.profile(enabled=args.do_profile,
                                                  record_shapes=args.record_shapes,
                                                  use_cuda=torch.cuda.is_available()) as prof:
 
-                print("Enables autocasting for the forward pass (model + loss)")
                 # Enables autocasting for the forward pass (model + loss)
                 with torch.cuda.amp.autocast(enabled=args.enable_amp):
                     loss, acc = model(batch)
 
-                print("Scales loss.  Calls backward() on scaled loss to create scaled gradients.")
                 # Exits the context manager before backward()
                 # Scales loss.  Calls backward() on scaled loss to create scaled gradients.
                 scaler.scale(loss).backward()
@@ -142,7 +138,6 @@ def main(args):
 
                 accum += 1
                 
-                print("Accum loss")
                 if accum == args.accumulation_count:
                     # Unscales the gradients of optimizer's assigned params in-place
                     scaler.unscale_(optimizer)

@@ -9,9 +9,9 @@ MAX_REL_POS=4
 ACCUM_COUNT=4
 ENC_PE=none
 ENC_H=256
-BATCH_SIZE=4096
+BATCH_SIZE=1024 #4096
 ENC_EMB_SCALE=sqrt
-MAX_STEP=84000
+MAX_STEP=400000
 ENC_LAYER=4
 BATCH_TYPE=tokens
 REL_BUCKETS=11
@@ -78,5 +78,5 @@ python train.py \
   --predict_max_len=512 \
   --log_iter=100 \
   --eval_iter=2000 \
-  --save_iter=5000 \
+  --save_iter=2000 \
   --compute_graph_distance

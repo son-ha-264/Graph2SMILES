@@ -2,6 +2,7 @@ from multiprocessing import Pool
 from utils.data_utils import get_graph_features_from_smi
 from collections.abc import Iterable
 from typing import List
+import numpy as np
 
 src_file="/home/sonh/MAINCE_project/Graph2SMILES/data/BioChem_USPTO_NPL/src-train.txt"
 
@@ -83,3 +84,11 @@ print(len(b_features))
 print(len(b_features_lens))
 print(len(a_graphs))
 print(len(b_graphs))
+
+a_scopes = np.concatenate(a_scopes, axis=0)
+b_scopes = np.concatenate(b_scopes, axis=0)
+a_features = np.concatenate(a_features, axis=0)
+b_features = np.concatenate(b_features, axis=0)
+a_graphs = np.concatenate(a_graphs, axis=0)
+b_graphs = np.concatenate(b_graphs, axis=0)
+print(b_scopes.shape)

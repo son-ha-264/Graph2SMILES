@@ -54,7 +54,7 @@ class Graph2SeqSeriesRel(nn.Module):
             attention_dropout=args.attn_dropout,
             embeddings=self.decoder_embeddings,
             max_relative_positions=args.max_relative_positions,
-            relative_positions_buckets=16,
+            #relative_positions_buckets=16,
             aan_useffn=False,
             full_context_alignment=False,
             alignment_layer=-3,
@@ -178,7 +178,9 @@ class Graph2SeqSeriesRel(nn.Module):
                 block_ngram_repeat=0,
                 exclusion_tokens=set(),
                 stepwise_penalty=None,
-                ratio=0.0
+                ratio=0.0,
+                #unk=,
+                #ban_unk_token=True,
             )
 
         padded_memory_bank, memory_lengths = self.encode_and_reshape(reaction_batch=reaction_batch)

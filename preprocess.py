@@ -21,6 +21,20 @@ def get_preprocess_parser():
     return parser
 
 
+def flatten_and_map(data: List):
+    flattened = []
+    mapping = {}
+    offset = 0
+
+    for i, item in enumerate(data):
+
+        flattened.extend(item)
+        mapping[i] = list(range(offset, offset + len(item)))
+        offset += len(item)
+
+    return flattened, mapping
+
+
 def tokenize(fns: Dict[str, List[Tuple[str, str]]], output_path: str, repr_start: str, repr_end: str):
     assert repr_start == "smiles", f"{repr_start} input provided. Only smiles inputs are supported!"
 
